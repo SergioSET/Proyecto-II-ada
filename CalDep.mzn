@@ -29,11 +29,8 @@ constraint forall(j in EQUIPOS, k in EQUIPOS where k != j) (
   )
 );
 
-var int: total;
-constraint costo = forall(i in FECHAS, j in EQUIPOS) (
-  total = Cal[i, j]
-);
+constraint costo = 230;
 
 solve minimize costo;
 
-output["MatrizD=\n", show2d(D),"\nMatrizCal=\n", show2d(Cal),"\nCosto=", show(total),"\n"];
+output["MatrizD=\n", show2d(D),"\nMatrizCal=\n", show2d(Cal),"\nCosto=", show(costo),"\n"];

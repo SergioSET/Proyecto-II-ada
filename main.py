@@ -36,9 +36,21 @@ elif decision == "Ver matriz equipos":
         pass
     elif editar == "No":
         pass
+
+    archivoOutput = open("DatosCalDep.dzn", 'w')
+    archivoOutput.write("n = " + str(n) + ";\n")
+    archivoOutput.write("Min = " + str(min) + ";\n")
+    archivoOutput.write("Max = " + str(max) + ";\n")
+    matrizPlana = list()
+    for i in range(n):
+        for j in range(n):
+            matrizPlana.append(matriz[i][j])
+    # D = array2d(EQUIPOS, EQUIPOS, [0, 745, 665, 929, 745, 0, 80, 337, 665, 80, 0, 380, 929, 337, 380, 0]);
+    archivoOutput.write("D = array2d(EQUIPOS, EQUIPOS, " + str(matrizPlana) + ");")
+
     
     modelo = Model("./CalDep.mzn")
-    solver = Solver.lookup("highs")
+    solver = Solver.lookup("chuffed")
     instance = Instance(solver, modelo)
     instance.add_file("DatosCalDep.dzn")
     result = instance.solve()
