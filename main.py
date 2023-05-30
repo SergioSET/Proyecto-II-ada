@@ -56,19 +56,20 @@ def ejecutarMzn():
         matriz_np = np.array(matrizCal)
         filas, columnas = matriz_np.shape
         fig, ax = plt.subplots()
-        ax.imshow(matriz_np, cmap='Greens')
+        ax.imshow(matriz_np, cmap='Blues')
         ax.set_xticks(np.arange(columnas))
         ax.set_yticks(np.arange(filas))
         ax.set_xticklabels(np.arange(1, columnas + 1))
-        ax.set_yticklabels(np.arange(1, filas + 1))
-        ax.text(0.5, -0.1, "Costo: " +
-                str(result["costo"]), transform=ax.transAxes, ha='center', va='center')
+        ax.set_yticklabels(np.arange(1, filas + 1), va="top")
+
+        ax.text(0.5, 1.05, "Costo: " +
+                str(result["costo"]), transform=ax.transAxes, ha='center', va='center', )
 
         for i in range(filas):
             for j in range(columnas):
                 valor = matriz_np[i, j]
                 ax.text(j, i, str(valor), ha='center',
-                        va='center', color='black')
+                        va='center', color='black', fontsize=15)
         plt.show()
 
     elif str(result.status) == "SATISFIABLE":
