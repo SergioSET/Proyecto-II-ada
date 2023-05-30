@@ -1,13 +1,13 @@
-from minizinc import Instance, Model, Solver
+import minizinc
 import easygui
 import sys
+from os import system
 
-decision = easygui.buttonbox("¿Qué desea hacer?", "Calendario Deportivo", [
-                             "Generar matriz equipos", "Ver matriz equipos", "Salir"])
-
-if decision == "Generar matriz equipos":
-    print("Opción no válida aún")
-elif decision == "Ver matriz equipos":
+def decision ():
+    decision = easygui.buttonbox("¿Qué desea hacer?", "Calendario Deportivo", [
+                                "Generar matriz equipos", "Ver matriz equipos", "Salir"])
+        
+def convertirTxtADzn():
     archivo = easygui.fileopenbox(msg="Seleccione el archivo del calendario",
                                   title="Calendario Deportivo", default="pruebas/*.txt", filetypes=["*.txt"])
 
@@ -29,14 +29,6 @@ elif decision == "Ver matriz equipos":
             matrizStr += str(matriz[i][j]) + " "
         matrizStr += "\n"
 
-    editar = easygui.buttonbox(msg="¿Desea editar el calendario?\n\nCantidad de equipos: " + str(n) + "\nMinimo: " +
-                               str(min) + "\nMaximo: " + str(max) + "\nMatriz de distancia entre equipos: \n" + matrizStr, title="Calendario Deportivo", choices=["Sí", "No"])
-    
-    if editar == "Sí":
-        pass
-    elif editar == "No":
-        pass
-
     archivoOutput = open("DatosCalDep.dzn", 'w')
     archivoOutput.write("n = " + str(n) + ";\n")
     archivoOutput.write("Min = " + str(min) + ";\n")
@@ -45,13 +37,41 @@ elif decision == "Ver matriz equipos":
     for i in range(n):
         for j in range(n):
             matrizPlana.append(matriz[i][j])
-    # D = array2d(EQUIPOS, EQUIPOS, [0, 745, 665, 929, 745, 0, 80, 337, 665, 80, 0, 380, 929, 337, 380, 0]);
     archivoOutput.write("D = array2d(EQUIPOS, EQUIPOS, " + str(matrizPlana) + ");")
+    archivoOutput.close()
 
-    
-    modelo = Model("./CalDep.mzn")
-    solver = Solver.lookup("chuffed")
-    instance = Instance(solver, modelo)
-    instance.add_file("DatosCalDep.dzn")
+def ejecutarMzn():    
+    # result = system("minizinc CalDep.mzn DatosCalDep.dzn --solver Gecode")
+    modelo = minizinc.Model("./CalDep.mzn")
+    solver = minizinc.Solver.lookup("gecode")
+    instance = minizinc.Instance(solver, modelo)
+    instance.add_file("./DatosCalDep.dzn")
     result = instance.solve()
-    print(result)
+    print("resultado", result.status)
+
+    matrizStr = ""
+    if str(result.status) == "OPTIMAL_SOLUTION":
+        for i in range(instance["n"]):
+            for j in range(instance["n"]):
+                matrizStr += str(result["Cal"][i][j]) + " "
+            matrizStr += "\n"
+
+        easygui.msgbox(msg="Se ha encontrado una solución óptima\n\n" + matrizStr + "\n\nCon costo: " + str(result["costo"]), title="Calendario Deportivo")
+    elif str(result.status) == "SATISFIABLE":
+        for i in range(instance["n"]):
+            for j in range(instance["n"]):
+                matrizStr += str(result["Cal"][i][j]) + " "
+            matrizStr += "\n"
+        easygui.msgbox(msg="Se ha encontrado una solución óptima satisfactoria\n\n" + matrizStr + "\n\nCon costo: " + str(result["costo"]), title="Calendario Deportivo")
+    elif str(result.status) == "UNSATISFIABLE":
+        easygui.msgbox(msg="No se ha encontrado una solución satisfactoria", title="Calendario Deportivo")
+    else:
+        easygui.msgbox(msg="No se puede determinar si hay solución", title="Calendario Deportivo")
+
+
+def main():
+    convertirTxtADzn()
+    ejecutarMzn()
+
+if __name__ == "__main__":
+    main()
