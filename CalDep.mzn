@@ -11,40 +11,42 @@ array[EQUIPOS, EQUIPOS] of var int: D;
 array[FECHAS, EQUIPOS] of var -n..n: Cal;
 array[FECHAS2, EQUIPOS] of var int: costoGira;
 
-var int: count_pos = card({Cal[i, j] > 0 | i in 1..2*(n-1), j in 1..n});
-var int: count_neg = card({Cal[i, j] < 0 | i in 1..2*(n-1), j in 1..n});
-
-constraint forall(i in FECHAS, j in EQUIPOS) (
-  Cal[i, j] != 0
-);
+var int: count_pos = card({Cal[i, j] > 0 | i in FECHAS, j in EQUIPOS});
+var int: count_neg = card({Cal[i, j] < 0 | i in FECHAS, j in EQUIPOS});
 
 constraint forall(i in FECHAS, j, k in EQUIPOS) (
   (Cal[i, j] = k) <-> (Cal[i, k] = -j)
 );
 
 constraint forall(i in FECHAS, j in EQUIPOS) (
-  abs(Cal[i,j]) <= n /\ abs(Cal[i,j]) >= 1
+  Cal[i, j] != 0
 );
+
 
 constraint n/2 = count_pos;
 constraint n/2 = count_neg;
 
-constraint forall(j in EQUIPOS, k in EQUIPOS where k != j) (
+constraint forall(j, k in EQUIPOS where k != j) (
   exists(i1, i2 in FECHAS) (
     Cal[i1, j] = k /\ Cal[i2, j] = -k
   )
 );
 
+constraint forall(i in 2..2*(n-1), j in EQUIPOS)(
+  Cal[i-1, abs(Cal[i,j])] != j
+);
+
+
 constraint forall(i in FECHAS, j in EQUIPOS)(
   if Cal[i,j] < 0 then
-    if Cal[i-1,j] < 0 then
-      costoGira[i,j] = D[abs(Cal[i,j]), abs(Cal[i-1,j])]   
+    if i > 1 /\ Cal[i-1,j] < 0 then
+      costoGira[i,j] = D[abs(Cal[i-1,j]), abs(Cal[i,j])]   
     else
-      costoGira[i,j] = D[abs(Cal[i,j]),j]
+      costoGira[i,j] = D[j, abs(Cal[i,j])]
     endif
   else
-    if Cal[i-1,j] < 0 then
-      costoGira[i,j] = D[j,abs(Cal[i-1,j])]
+    if i > 1 /\ Cal[i-1,j] < 0 then
+      costoGira[i,j] = D[abs(Cal[i-1,j]), j]
     else
       costoGira[i,j] = 0
     endif    
@@ -53,12 +55,14 @@ constraint forall(i in FECHAS, j in EQUIPOS)(
 
 constraint forall(j in EQUIPOS)(
   if Cal[2*(n-1),j] < 0 then
-    costoGira[2*(n-1) + 1,j] = D[-1*Cal[2*(n-1), j], j]
+    costoGira[2*(n-1) + 1,j] = D[abs(Cal[2*(n-1), j]), j]
   else 
     costoGira[2*(n-1) + 1,j] = 0
   endif
 );
+constraint costo = sum(i in FECHAS2, j in EQUIPOS) (costoGira[i,j]);
+solve minimize costo;
 
-solve minimize 5;
+
 
 % output["MatrizD=\n", show2d(D),"\nMatrizCal=\n", show2d(Cal),"\nCosto=", show(costo),"\n"];
