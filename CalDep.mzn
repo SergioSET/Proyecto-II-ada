@@ -22,8 +22,8 @@ constraint forall(i in FECHAS, j in EQUIPOS) (
   Cal[i, j] != 0
 );
 
-constraint n/2 = count_pos;
-constraint n/2 = count_neg;
+% constraint n/2 = count_pos;
+% constraint n/2 = count_neg;
 
 constraint forall(j, k in EQUIPOS where k != j) (
   exists(i1, i2 in FECHAS) (

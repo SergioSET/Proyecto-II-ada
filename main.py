@@ -1,9 +1,9 @@
-import easygui
-import sys
-from os import system
-import numpy as np
-import matplotlib.pyplot as plt
 import ast
+import sys
+import easygui
+import numpy as np
+from os import system
+import matplotlib.pyplot as plt
 
 
 def decision():
@@ -40,9 +40,9 @@ def convertirTxtADzn():
 
 
 def ejecutarMzn():
-    system("minizinc CalDep.mzn DatosCalDep.dzn --solver Gecode > salida.txt")
+    system("minizinc CalDep.mzn DatosCalDep.dzn -a --time-limit 120000 --solver Gecode > salida.txt")
 
-    with open("salida.txt", "r") as file:
+    with open("salida.txt", "r") as file:   
         linea = file.readline()
         costo = file.readline()
 
