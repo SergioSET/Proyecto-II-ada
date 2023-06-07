@@ -22,7 +22,6 @@ constraint forall(i in FECHAS, j in EQUIPOS) (
   Cal[i, j] != 0
 );
 
-
 constraint n/2 = count_pos;
 constraint n/2 = count_neg;
 
@@ -35,7 +34,6 @@ constraint forall(j, k in EQUIPOS where k != j) (
 constraint forall(i in 2..2*(n-1), j in EQUIPOS)(
   Cal[i-1, abs(Cal[i,j])] != j
 );
-
 
 constraint forall(i in FECHAS, j in EQUIPOS)(
   if Cal[i,j] < 0 then
@@ -67,7 +65,6 @@ constraint forall(j in EQUIPOS)(
     endif /\ gira[i]<= Max /\ gira[i]>=Min)
 );
 
-
 constraint forall(j in EQUIPOS)(
   if Cal[2*(n-1),j] < 0 then
     costoGira[2*(n-1) + 1,j] = D[abs(Cal[2*(n-1), j]), j]
@@ -79,9 +76,4 @@ constraint forall(j in EQUIPOS)(
 constraint costo = sum(i in FECHAS2, j in EQUIPOS) (costoGira[i,j]);
 solve minimize costo;
 
-
-
-
-
-% output["MatrizD=\n", show2d(D),"\nMatrizCal=\n", show2d(Cal),"\nCosto=", show(costo),"\n"];
-output["MatrizCal=\n", show2d(Cal),"\nCosto=", show(costo),"\n"];
+output[show(Cal),"\n", show(costo),"\n"];

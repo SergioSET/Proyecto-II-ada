@@ -1,9 +1,9 @@
-import minizinc
 import easygui
 import sys
 from os import system
 import numpy as np
 import matplotlib.pyplot as plt
+import ast
 
 
 def decision():
@@ -40,20 +40,22 @@ def convertirTxtADzn():
 
 
 def ejecutarMzn():
-    # result = system("minizinc CalDep.mzn DatosCalDep.dzn --solver Gecode")
-    modelo = minizinc.Model("./CalDep.mzn")
-    solver = minizinc.Solver.lookup("gecode")
-    instance = minizinc.Instance(solver, modelo)
-    instance.add_file("./DatosCalDep.dzn")
-    result = instance.solve()
-    # print("resultado", result.status)
+    system("minizinc CalDep.mzn DatosCalDep.dzn --solver Gecode > salida.txt")
 
-    matrizCal = list()
-    matrizStr = ""
+    with open("salida.txt", "r") as file:
+        linea = file.readline()
+        costo = file.readline()
 
-    if str(result.status) == "OPTIMAL_SOLUTION":
-        matrizCal = result["Cal"]
-        matriz_np = np.array(matrizCal)
+    if str(linea) == '=====UNSATISFIABLE=====\n':
+        easygui.msgbox(
+            msg="No se ha encontrado una solución satisfactoria", title="Calendario Deportivo")
+    else:
+        lista = ast.literal_eval(linea)
+        num_columnas = 4
+        matriz = [lista[i:i+num_columnas]
+                  for i in range(0, len(lista), num_columnas)]
+
+        matriz_np = np.array(matriz)
         filas, columnas = matriz_np.shape
         fig, ax = plt.subplots()
         ax.imshow(matriz_np, cmap='Blues')
@@ -63,40 +65,30 @@ def ejecutarMzn():
         ax.set_yticklabels(np.arange(1, filas + 1), va="top")
 
         ax.text(0.5, 1.05, "Costo: " +
-                str(result["costo"]), transform=ax.transAxes, ha='center', va='center', )
+                str(costo), transform=ax.transAxes, ha='center', va='center', )
 
         for i in range(filas):
             for j in range(columnas):
                 valor = matriz_np[i, j]
                 ax.text(j, i, str(valor), ha='center',
                         va='center', color='black', fontsize=15)
+
         plt.show()
 
-    elif str(result.status) == "SATISFIABLE":
-        matrizCal = result["Cal"]
-        longitudes = [max(len(str(matrizCal[i][j])) for i in range(
-            len(matrizCal))) for j in range(len(matrizCal[0]))]
 
-        for fila in matrizCal:
-            elementos_formateados = [str(elemento).rjust(
-                longitud + 1) for elemento, longitud in zip(fila, longitudes)]
-            matrizStr += " ".join(elementos_formateados) + "\n"
-
-        easygui.msgbox(msg="Se ha encontrado una solución óptima satisfactoria\n\n" +
-                       matrizStr + "\n\nCon costo: " + str(result["costo"]), title="Calendario Deportivo")
-
-    elif str(result.status) == "UNSATISFIABLE":
-        easygui.msgbox(
-            msg="No se ha encontrado una solución satisfactoria", title="Calendario Deportivo")
-
+def repetir():
+    repetir = easygui.indexbox(msg="¿Desea generar otro calendario?", title="Calendario Deportivo", choices=[
+        "Sí", "No"])
+    if repetir == 0:
+        main()
     else:
-        easygui.msgbox(msg="No se puede determinar si hay solución",
-                       title="Calendario Deportivo")
+        sys.exit(0)
 
 
 def main():
     convertirTxtADzn()
     ejecutarMzn()
+    repetir()
 
 
 if __name__ == "__main__":
