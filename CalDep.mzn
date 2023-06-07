@@ -7,7 +7,7 @@ var int: costo;
 set of int: FECHAS = 1..2*(n-1);
 set of int: FECHAS2 = 1..(2*(n-1) + 1);
 set of int: EQUIPOS = 1..n;
-array[EQUIPOS, EQUIPOS] of var int: D;
+array[EQUIPOS, EQUIPOS] of int: D;
 array[FECHAS, EQUIPOS] of var -n..n: Cal;
 array[FECHAS2, EQUIPOS] of var int: costoGira;
 
@@ -54,15 +54,34 @@ constraint forall(i in FECHAS, j in EQUIPOS)(
 );
 
 constraint forall(j in EQUIPOS)(
+  let{
+    array[FECHAS] of var 1..(n-1): gira;
+  } in
+   forall(i in FECHAS)(
+   if Cal[i, j] < 0 then 
+      if i>1 /\ Cal[i-1,j] < 0 then 
+        gira[i]=gira[i-1] + 1 
+      else  gira[i]=1 
+      endif
+    else  true
+    endif /\ gira[i]<= Max /\ gira[i]>=Min)
+);
+
+
+constraint forall(j in EQUIPOS)(
   if Cal[2*(n-1),j] < 0 then
     costoGira[2*(n-1) + 1,j] = D[abs(Cal[2*(n-1), j]), j]
   else 
     costoGira[2*(n-1) + 1,j] = 0
   endif
 );
+
 constraint costo = sum(i in FECHAS2, j in EQUIPOS) (costoGira[i,j]);
 solve minimize costo;
 
 
 
+
+
 % output["MatrizD=\n", show2d(D),"\nMatrizCal=\n", show2d(Cal),"\nCosto=", show(costo),"\n"];
+output["MatrizCal=\n", show2d(Cal),"\nCosto=", show(costo),"\n"];
