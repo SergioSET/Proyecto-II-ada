@@ -40,40 +40,40 @@ def convertirTxtADzn():
 
 
 def ejecutarMzn():
-    system("minizinc CalDep.mzn DatosCalDep.dzn --time-limit 120000 --solver Gecode > salida.txt")
+    system("minizinc CalDep.mzn DatosCalDep.dzn --time-limit 10000 --solver Gecode")
 
-    with open("salida.txt", "r") as file:   
-        linea = file.readline()
-        costo = file.readline()
+    # with open("salida.txt", "r") as file:   
+    #     linea = file.readline()
+    #     costo = file.readline()
 
-    if str(linea) == '=====UNSATISFIABLE=====\n':
-        easygui.msgbox(
-            msg="No se ha encontrado una solución satisfactoria", title="Calendario Deportivo")
-    else:
-        lista = ast.literal_eval(linea)
-        num_columnas = 4
-        matriz = [lista[i:i+num_columnas]
-                  for i in range(0, len(lista), num_columnas)]
+    # if str(linea) == '=====UNSATISFIABLE=====\n':
+    #     easygui.msgbox(
+    #         msg="No se ha encontrado una solución satisfactoria", title="Calendario Deportivo")
+    # else:
+    #     lista = ast.literal_eval(linea)
+    #     num_columnas = 4
+    #     matriz = [lista[i:i+num_columnas]
+    #               for i in range(0, len(lista), num_columnas)]
 
-        matriz_np = np.array(matriz)
-        filas, columnas = matriz_np.shape
-        fig, ax = plt.subplots()
-        ax.imshow(matriz_np, cmap='Blues')
-        ax.set_xticks(np.arange(columnas))
-        ax.set_yticks(np.arange(filas))
-        ax.set_xticklabels(np.arange(1, columnas + 1))
-        ax.set_yticklabels(np.arange(1, filas + 1), va="top")
+    #     matriz_np = np.array(matriz)
+    #     filas, columnas = matriz_np.shape
+    #     fig, ax = plt.subplots()
+    #     ax.imshow(matriz_np, cmap='Blues')
+    #     ax.set_xticks(np.arange(columnas))
+    #     ax.set_yticks(np.arange(filas))
+    #     ax.set_xticklabels(np.arange(1, columnas + 1))
+    #     ax.set_yticklabels(np.arange(1, filas + 1), va="top")
 
-        ax.text(0.5, 1.05, "Costo: " +
-                str(costo), transform=ax.transAxes, ha='center', va='center', )
+    #     ax.text(0.5, 1.05, "Costo: " +
+    #             str(costo), transform=ax.transAxes, ha='center', va='center', )
 
-        for i in range(filas):
-            for j in range(columnas):
-                valor = matriz_np[i, j]
-                ax.text(j, i, str(valor), ha='center',
-                        va='center', color='black', fontsize=15)
+    #     for i in range(filas):
+    #         for j in range(columnas):
+    #             valor = matriz_np[i, j]
+    #             ax.text(j, i, str(valor), ha='center',
+    #                     va='center', color='black', fontsize=15)
 
-        plt.show()
+    #     plt.show()
 
 
 def repetir():
