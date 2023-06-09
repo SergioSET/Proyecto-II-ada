@@ -40,7 +40,7 @@ def convertirTxtADzn():
 
 
 def ejecutarMzn():
-    system("minizinc CalDep.mzn DatosCalDep.dzn --time-limit 10000 --solver Gecode")
+    system("minizinc --solver Gecode CalDep.mzn DatosCalDep.dzn --time-limit 120000")
 
     # with open("salida.txt", "r") as file:   
     #     linea = file.readline()

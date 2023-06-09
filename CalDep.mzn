@@ -9,8 +9,12 @@ set of int: FECHAS2 = 1..(2*(n-1) + 1);
 set of int: EQUIPOS = 1..n;
 array[EQUIPOS, EQUIPOS] of int: D;
 array[FECHAS, EQUIPOS] of var -n..n: Cal;
-array[FECHAS2, EQUIPOS] of var int: costoGira;
+array[FECHAS2, EQUIPOS] of var {D[i, j] | i, j in EQUIPOS}: costoGira;
 
+% Restricción de no nulidad
+constraint forall(i in FECHAS, j in EQUIPOS) (
+  Cal[i, j] != 0 
+);
 % Restricción de que no se repitan los partidos
 constraint forall(j in EQUIPOS, i in FECHAS where i > 1) (
   abs(Cal[i-1, j]) != abs(Cal[i, j])
@@ -38,20 +42,6 @@ constraint forall(j, k in EQUIPOS where k != j) (
   )
 );
 
-% Restricción de min y max de las giras
-constraint forall(j in EQUIPOS)(
-  let{
-    array[FECHAS] of var 1..(n-1): gira;
-  } in
-   forall(i in FECHAS)(
-   if Cal[i, j] < 0 then 
-      if i>1 /\ Cal[i-1,j] < 0 then 
-        gira[i]=gira[i-1] + 1 
-      else gira[i]=1 
-      endif
-    else true
-    endif /\ gira[i]<= Max /\ gira[i]>=Min)
-);
 
 % Restricción para los costos de la gira
 constraint forall(i in FECHAS, j in EQUIPOS)(
@@ -70,6 +60,11 @@ constraint forall(i in FECHAS, j in EQUIPOS)(
   endif
 );
 
+% Restricción de que en cada fila estén todos los números de 1 a n en valor absoluto
+constraint forall(i in FECHAS)(
+  {abs(Cal[i, j]) | j in EQUIPOS} = EQUIPOS
+);
+
 % Restricción para los costos de la gira
 constraint forall(j in EQUIPOS)(
   if Cal[2*(n-1),j] < 0 then
@@ -77,6 +72,29 @@ constraint forall(j in EQUIPOS)(
   else 
     costoGira[2*(n-1) + 1,j] = 0
   endif
+);
+
+% Restricción de min y max de las giras
+constraint forall(j in EQUIPOS)(
+  let{
+    array[FECHAS] of var -Max..Max: giraEquipo;
+  } in
+   forall(i in FECHAS)(
+   if Cal[i, j] < 0 then       
+      if i>1 /\ Cal[i-1,j] < 0 then 
+        giraEquipo[i]=giraEquipo[i-1] + 1 
+      else giraEquipo[i]=1 
+      endif
+   else  
+      if i>1 /\ Cal[i-1,j] > 0 then 
+        giraEquipo[i]=giraEquipo[i-1] - 1 
+      else giraEquipo[i]= -1 
+      endif
+   
+   endif) 
+   /\ forall(l in {abs(giraEquipo[i])|i in FECHAS where (i < 2*(n-1) /\ giraEquipo[i+1] < 0 /\ giraEquipo[i] > 0) \/ (i < 2*(n-1) /\ giraEquipo[i+1] > 0 /\ giraEquipo[i] < 0) \/ (i = 2*(n-1))})(
+   l<=Max /\ l>=Min
+   )
 );
 
 constraint costo = sum(i in FECHAS2, j in EQUIPOS) (costoGira[i,j]);
