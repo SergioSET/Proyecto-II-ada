@@ -92,9 +92,16 @@ constraint forall(j in EQUIPOS)(
       endif
    
    endif) 
-   /\ forall(l in {abs(giraEquipo[i])|i in FECHAS where (i < 2*(n-1) /\ giraEquipo[i+1] < 0 /\ giraEquipo[i] > 0) \/ (i < 2*(n-1) /\ giraEquipo[i+1] > 0 /\ giraEquipo[i] < 0) \/ (i = 2*(n-1))})(
-   l<=Max /\ l>=Min
-   )
+   /\ let{
+   array[FECHAS] of var Min..Max union {0}: longGiraE;
+   } in sum(l in longGiraE)(l) = 2*(n-1) /\ forall(i in FECHAS)(
+   if (i < 2*(n-1) /\ giraEquipo[i+1] < 0 /\ giraEquipo[i] > 0) 
+   \/ (i < 2*(n-1) /\ giraEquipo[i+1] > 0 /\ giraEquipo[i] < 0) 
+   \/ (i = 2*(n-1)) then       
+     longGiraE[i]= abs(giraEquipo[i])
+   else  
+      longGiraE[i]=0
+   endif)
 );
 
 constraint costo = sum(i in FECHAS2, j in EQUIPOS) (costoGira[i,j]);
