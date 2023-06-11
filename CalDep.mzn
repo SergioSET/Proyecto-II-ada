@@ -15,20 +15,33 @@ array[FECHAS2, EQUIPOS] of var {D[i, j] | i, j in EQUIPOS}: costoGira;
 constraint forall(i in FECHAS, j in EQUIPOS) (
   Cal[i, j] != 0 /\ abs(Cal[i, j]) != j
 );
-% Restricción de que no se repitan los partidos en fechas consecutivas
-constraint forall(j in EQUIPOS, i in FECHAS where i > 1) (
-  abs(Cal[i-1, j]) != abs(Cal[i, j])
+
+% Restricción de calendarios validos
+constraint forall(i in FECHAS, j in EQUIPOS ) (
+  not exists(k in EQUIPOS where k != j)(
+  Cal[i, j]=Cal[i, k]) /\ not exists(l in FECHAS where l != i)(
+  Cal[i, j]=Cal[l, j])
+); 
+% Restricción de que en cada fecha juegan todos los equipos
+constraint forall(i in FECHAS)(
+  {abs(Cal[i, j]) | j in EQUIPOS} = EQUIPOS
 );
+
+% Restricción de que cada en cada fecha la mitad de equipos juegue de local y la otra mitad de visitante
+constraint forall(i in FECHAS) (count(j in EQUIPOS) (Cal[i, j] > 0) = n / 2);
+constraint forall(i in FECHAS) (count(j in EQUIPOS) (Cal[i, j] < 0) = n / 2);
 
 % Restricción de implicación de partidos
 constraint forall(i in FECHAS, j, k in EQUIPOS) (
   (Cal[i, j] = k) <-> (Cal[i, k] = -j)
 );
 
+% Restricción de que no se repitan los partidos en fechas consecutivas
+constraint forall(j in EQUIPOS, i in FECHAS where i > 1) (
+  abs(Cal[i-1, j]) != abs(Cal[i, j])
+);
 
-% Restricción de que cada en cada fecha la mitad de equipos juegue de local y la otra mitad de visitante
-constraint forall(i in FECHAS) (count(j in EQUIPOS) (Cal[i, j] > 0) = n / 2);
-constraint forall(i in FECHAS) (count(j in EQUIPOS) (Cal[i, j] < 0) = n / 2);
+
 
 % Restricción de ida y vuelta con cada equipo
 constraint forall(j, k in EQUIPOS where k != j) (
@@ -55,10 +68,7 @@ constraint forall(i in FECHAS, j in EQUIPOS)(
   endif
 );
 
-% Restricción de que en cada fecha juegan todos los equipos
-constraint forall(i in FECHAS)(
-  {abs(Cal[i, j]) | j in EQUIPOS} = EQUIPOS
-);
+
 
 % Restricción para los costos de la gira
 constraint forall(j in EQUIPOS)(
@@ -73,7 +83,6 @@ constraint forall(j in EQUIPOS)(
 constraint forall(j in EQUIPOS)(
   let{
     array[FECHAS] of var -Max..Max: giraEquipo;
-    array[FECHAS] of var Min..Max union {0}: longGiraE;
   } in
    forall(i in FECHAS)(
    if Cal[i, j] < 0 then       
@@ -92,9 +101,9 @@ constraint forall(j in EQUIPOS)(
    if (i < 2*(n-1) /\ giraEquipo[i+1] < 0 /\ giraEquipo[i] > 0)
    \/ (i < 2*(n-1) /\ giraEquipo[i+1] > 0 /\ giraEquipo[i] < 0)
    \/ (i = 2*(n-1)) then
-     longGiraE[i]= abs(giraEquipo[i]) 
+     abs(giraEquipo[i]) >= Min
    else
-      true
+      true 
    endif) 
     
 );
