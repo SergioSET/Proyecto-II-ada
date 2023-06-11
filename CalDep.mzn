@@ -13,9 +13,9 @@ array[FECHAS2, EQUIPOS] of var {D[i, j] | i, j in EQUIPOS}: costoGira;
 
 % Restricción de no nulidad
 constraint forall(i in FECHAS, j in EQUIPOS) (
-  Cal[i, j] != 0 
+  Cal[i, j] != 0 /\ abs(Cal[i, j]) != j
 );
-% Restricción de que no se repitan los partidos
+% Restricción de que no se repitan los partidos en fechas consecutivas
 constraint forall(j in EQUIPOS, i in FECHAS where i > 1) (
   abs(Cal[i-1, j]) != abs(Cal[i, j])
 );
@@ -25,13 +25,8 @@ constraint forall(i in FECHAS, j, k in EQUIPOS) (
   (Cal[i, j] = k) <-> (Cal[i, k] = -j)
 );
 
-% Restricción en una fila deben estar los valores de 1 a n
-% constraint forall(i in FECHAS) (forall(j in EQUIPOS) (
-%   abs(Cal[i, j]) <= n
-%   )
-% );
 
-% Restricción de que cada equipo juegue n/2 partidos de local y n/2 de visitante
+% Restricción de que cada en cada fecha la mitad de equipos juegue de local y la otra mitad de visitante
 constraint forall(i in FECHAS) (count(j in EQUIPOS) (Cal[i, j] > 0) = n / 2);
 constraint forall(i in FECHAS) (count(j in EQUIPOS) (Cal[i, j] < 0) = n / 2);
 
@@ -60,7 +55,7 @@ constraint forall(i in FECHAS, j in EQUIPOS)(
   endif
 );
 
-% Restricción de que en cada fila estén todos los números de 1 a n en valor absoluto
+% Restricción de que en cada fecha juegan todos los equipos
 constraint forall(i in FECHAS)(
   {abs(Cal[i, j]) | j in EQUIPOS} = EQUIPOS
 );
