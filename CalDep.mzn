@@ -117,4 +117,4 @@ constraint costo = sum(i in FECHAS2, j in EQUIPOS) (costoGira[i,j]);
 
 solve minimize costo;
 
-output[show2d(Cal),"\n", show(costo),"\n"];
+output[show(Cal),"\n", show(costo),"\n"];
