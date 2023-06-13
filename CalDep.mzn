@@ -11,6 +11,9 @@ array[EQUIPOS, EQUIPOS] of int: D;
 array[FECHAS, EQUIPOS] of var -n..n: Cal;
 array[FECHAS2, EQUIPOS] of var {D[i, j] | i, j in EQUIPOS}: costoGira;
 
+% Restricción de Max y Min gira
+constraint exists(l, m in Min..Max where m<=l)(((n-1) mod l) = m);
+
 constraint (n-1) >= Min;
 % Restricción de no nulidad
 constraint forall(i in FECHAS, j in EQUIPOS) (
