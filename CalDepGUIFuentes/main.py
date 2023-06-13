@@ -43,7 +43,11 @@ def convertirTxtADzn():
 
 
 def ejecutarMzn(n):
-    system("minizinc --solver Gecode CalDep.mzn DatosCalDep.dzn --time-limit 120000 > salida.txt")
+
+    #Coloque la cantidad de milisegundos a los que desea limitar la ejecución del modelo
+    tiempo_ejecucion = 120000
+
+    system(f"minizinc --solver Gecode CalDep.mzn DatosCalDep.dzn --time-limit {tiempo_ejecucion} > salida.txt")
 
     with open("salida.txt", "r") as file:
         linea = file.readline()
