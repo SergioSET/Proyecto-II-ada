@@ -88,7 +88,7 @@ def ejecutarMzn(n):
             for j in range(columnas):
                 valor = matriz_np[i, j]
                 ax.text(j, i, str(valor), ha='center',
-                        va='center', color='black', fontsize=15)
+                        va='center', color='black', fontsize=200/max(filas, columnas))
 
         plt.vlines(np.arange(columnas)+0.5, -0.5, filas-0.5)
         plt.hlines(np.arange(filas)+0.5, -0.5, columnas-0.5)
