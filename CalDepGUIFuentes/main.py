@@ -15,7 +15,7 @@ easygui.msgbox(msg="Bienvenido al programa de generación de calendarios deporti
 
 def convertirTxtADzn():
     archivo = easygui.fileopenbox(msg="Seleccione el archivo del calendario",
-                                  title="Calendario Deportivo", default="pruebas/*.txt", filetypes=["*.txt"])
+                                  title="Calendario Deportivo", default="DatosCalDep/*.txt", filetypes=["*.txt"])
 
     if archivo is None:
         sys.exit(0)
