@@ -51,11 +51,11 @@ def ejecutarMzn(n):
 
     if str(linea) == '=====UNSATISFIABLE=====\n':
         easygui.msgbox(
-            msg="No se ha podido determinar si existe una solución", title="Calendario Deportivo")
+            msg="No se ha encontrado una solución satisfactoria", title="Calendario Deportivo")
 
     elif str(linea) == '=====UNKNOWN=====\n':
         easygui.msgbox(
-            msg="No se ha encontrado una solución satisfactoria", title="Calendario Deportivo")
+            msg="No se ha podido determinar si existe una solución", title="Calendario Deportivo")
     else:
         lista = ast.literal_eval(linea)
         num_columnas = n
